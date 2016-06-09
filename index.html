@@ -10,19 +10,64 @@
 	</style>
 	<script src="jquery-2.2.0.min.js"></script>
 	<script src="line.js"></script>
+	<script src="cell.js"></script>
 	<script>
+		mouse = {x : 0, y : 0};
+		
 		function init(){
+			// Mouse tracker
+			$("body").mousemove(function(event){
+				mouse.x = event.pageX;
+				mouse.y = event.pageY;
+			});
 			// Prevent context menu
 			$("body").contextmenu(function(){
 				return false;
 			});
+			
+			draggableControls();
+			
+			// Draw lines
+			// Initialization
+			$("body").mousedown(function(event){
+				if(event.which == 3){
+					// Create and append line
+					currentLine = new Line(mouse.x, mouse.y, mouse.x, mouse.y);
+					//console.log(currentLine, event.pageX, even)
+					$("body").append(currentLine.line);
+				}
+			});
+			// Mouse movement
+			$("body").mousemove(function(event){
+				if(currentLine)
+					currentLine.updateEndpoint(mouse.x, mouse.y);
+			});
+			// Finisher
+			$("body").mouseup(function(event){
+				if(event.which == 3){
+					currentLine = false;
+				}
+			});
+			
+			// Add Cells
+			$("body").keyup(function(event){
+				if(event.keyCode == 32){
+					var rect = new Cell(mouse.x, mouse.y);
+					$("body").append(rect.element);
+					draggableControls();
+					console.log(rect);
+				}
+			});
+		};
+		
+		function draggableControls(){
 			// Draggable
 			$(".draggable").mousedown(function(event){
 				if(event.which == 1){
 					// Movement
 					$(this).mousemove(function(event){
-						this.style.top = event.pageY;
-						this.style.left = event.pageX;
+						this.style.top = mouse.y;
+						this.style.left = mouse.x;
 					});
 					
 					// Stop movement
@@ -35,27 +80,6 @@
 					});
 				}
 			});
-			// Draw lines
-			// Initialization
-			$("body").mousedown(function(event){
-				if(event.which == 3){
-					// Create and append line
-					currentLine = new Line(event.pageX, event.pageY, event.pageX, event.pageY);
-					//console.log(currentLine, event.pageX, even)
-					$("body").append(currentLine.line);
-				}
-			});
-			// Mouse movement
-			$("body").mousemove(function(event){
-				if(currentLine)
-					currentLine.updateEndpoint(event.pageX, event.pageY);
-			});
-			// Finisher
-			$("body").mouseup(function(event){
-				if(event.which == 3){
-					currentLine = false;
-				}
-			});
 		};
 		
 		currentLine = false;
@@ -64,6 +88,5 @@
 	</script>
 </head>
 <body>
-	<div class="draggable"></div>
 </body>
 </html>
